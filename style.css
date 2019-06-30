@@ -2,10 +2,12 @@
     box-sizing: border-box;
 }
 .wrapper{
-    width: calc(100% - 300px);
+    width: calc(100% - 315px);
     position: absolute;
-    right: 0;
-    top: 150px;
+    right: 15px;
+    top: 100px;
+    border: 1px solid #353535;
+    min-height: 80vh;
 }
 .form-field{
     padding: 10px;

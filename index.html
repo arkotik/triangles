@@ -8,70 +8,144 @@
 </head>
 <body>
     <div class="panel">
-        <div class="form-field">
-            <label for="t-width">Width:</label>
-            <input type="number" name="width" id="t-width" value="100">
-        </div>
-        <div class="form-field">
-            <label for="t-height">Height:</label>
-            <input type="number" name="height" id="t-height" value="100">
-        </div>
-        <div class="form-field">
-            <label for="t-skew-x">Skew X:</label>
-            <input type="number" name="height" id="t-skew-x" value="0">
-        </div>
-        <div class="form-field">
-            <label for="t-skew-y">Skew Y:</label>
-            <input type="number" name="height" id="t-skew-y" value="0">
-        </div>
-
-        <div class="wrapper">
-            <div class="triangle"></div>
-        </div>
+        <form action="#" id="form-t">
+            <div class="form-field">
+                <label for="t-top">Top:</label>
+                <input type="number" name="top" id="t-top" value="50">
+            </div>
+            <div class="form-field">
+                <label for="t-left">Left:</label>
+                <input type="number" name="left" id="t-left" value="50">
+            </div>
+            <div class="form-field">
+                <label for="t-width">Width:</label>
+                <input type="number" name="width" id="t-width" value="100">
+            </div>
+            <div class="form-field">
+                <label for="t-height">Height:</label>
+                <input type="number" name="height" id="t-height" value="100">
+            </div>
+            <div class="form-field">
+                <label for="t-skew-x">Skew X:</label>
+                <input type="number" name="skew-x" id="t-skew-x" value="0">
+            </div>
+            <div class="form-field">
+                <label for="t-skew-y">Skew Y:</label>
+                <input type="number" name="skew-y" id="t-skew-y" value="0">
+            </div>
+            <div class="form-field">
+                <input type="button" name="add-tri" id="add-tri-butt" value="Add +">
+            </div>
+            <button id="reset-butt">Reset</button>
+        </form>
+    </div>
+    <div class="wrapper">
+        <div class="active-marker"></div>
     </div>
 <script type="text/javascript">
-  const triangle = document.querySelector('.triangle');
+  window.CONTAINER = document.querySelector('.wrapper');
+  const form = document.querySelector('#form-t');
+  const resetButt = document.querySelector('#reset-butt');
+  const addButt = document.querySelector('#add-tri-butt');
+
   const widthInput = document.querySelector('#t-width');
   const heightInput = document.querySelector('#t-height');
+  const topInput = document.querySelector('#t-top');
+  const leftInput = document.querySelector('#t-left');
   const skewXInput = document.querySelector('#t-skew-x');
   const skewYInput = document.querySelector('#t-skew-y');
 
-  let style = document.createElement('style');
-  style.dataset.id = 'tri';
-  document.head.appendChild(style);
-  style = document.querySelector('head style[data-id="tri"]');
+  const figures = new FiguresList();
+  const next = getIterator();
+  const activeMarkerStyles = new StylesList('marker');
+  activeMarkerStyles.addBlock('.active-marker', {
+    position: 'absolute',
+    border: `1px dashed #a5a5a5`
+  }, 'main');
+  activeMarkerStyles.refresh();
 
-  function reCalc() {
-    const w = +widthInput.value;
-    const h = +heightInput.value;
+  addButt.onclick = () => {
+    figures.setActive(null);
+    form.reset();
+    const key = `fig-${next()}`;
+    const { figureProps, beforeProps, raw } = collectProps();
+    const figStyle = new StylesBlock(`.triangle.${key}`, figureProps, 'figure');
+    const beforeStyle = new StylesBlock(`.triangle.${key}:before`, beforeProps, 'before');
+    const figure = figures.addFigure(key, 'triangle');
+    figure.setStyles([figStyle, beforeStyle]);
+    figure.setRawProps(raw);
+    figure.ref.addEventListener('click', () => {
+      figures.setActive(key);
+      const { width, height, skewX, skewY, top, left } = figures.getActive(key).getRawProps();
+      const markerProps = {
+        top: `${top - 5}px`,
+        left: `${left - 5}px`,
+        width: `${width + 10}px`,
+        height: `${height + 10}px`,
+      };
+      activeMarkerStyles.getBlockByAlias('main').setProperties(markerProps);
+      activeMarkerStyles.refresh();
+      widthInput.value = width;
+      heightInput.value = height;
+      skewXInput.value = skewX;
+      skewYInput.value = skewY;
+      topInput.value = top;
+      leftInput.value = left;
+    });
+  };
+
+  function collectProps() {
+    const width = +widthInput.value;
+    const height = +heightInput.value;
     const skewX = +skewXInput.value;
     const skewY = +skewYInput.value;
-    const dia = getDia(w, h);
-    if (triangle) {
-      const triStyle = (() => {
-        const style = new Styles('.triangle');
-        style.setProperty('width', `${w}px`);
-        style.setProperty('height', `${h}px`);
-        style.setProperty('transform', `skew(${skewX}deg, ${skewY}deg)`);
-        return style.getStyleBlock();
-      })();
-      const beforeStyle = (() => {
-        const halfDia = dia / 2;
-        const style = new Styles('.triangle:before');
-        style.setProperty('width', `${dia}px`);
-        style.setProperty('height', `${halfDia}px`);
-        style.setProperty('position', 'relative');
-        style.setProperty('top', `calc((100% - ${halfDia}px) / 2)`);
-        style.setProperty('left', `calc((100% - ${dia}px) / 2)`);
-        const alpha = getAlpha(w, h);
-        style.setProperty('transform', `rotate(${alpha}deg) translate(0, 50%)`);
-        return style.getStyleBlock();
-      })();
-      style.innerHTML = [triStyle, beforeStyle].join('\n');
-    }
+    const top = +topInput.value;
+    const left = +leftInput.value;
+    const dia = getDia(width, height);
+    const halfDia = dia / 2;
+    const alpha = getAlpha(width, height);
+    const markerProps = {
+      top: `${top - 5}px`,
+      left: `${left - 5}px`,
+      width: `${width + 10}px`,
+      height: `${height + 10}px`,
+    };
+    activeMarkerStyles.getBlockByAlias('main').setProperties(markerProps);
+    activeMarkerStyles.refresh();
+    return {
+      figureProps: {
+        width: `${width}px`,
+        height: `${height}px`,
+        top: `${top}px`,
+        left: `${left}px`,
+        position: 'absolute',
+        transform:`skew(${skewX}deg, ${skewY}deg)`
+      },
+      beforeProps: {
+        width: `${dia}px`,
+        height: `${halfDia}px`,
+        position: 'relative',
+        top: `calc((100% - ${halfDia}px) / 2)`,
+        left: `calc((100% - ${dia}px) / 2)`,
+        transform: `rotate(${alpha}deg) translate(0, 50%)`
+      },
+      raw: { width, height, skewX, skewY, top, left, dia, alpha }
+    };
   }
-  [widthInput, heightInput, skewXInput, skewYInput].forEach(el => el.addEventListener('change', reCalc));
-  reCalc();
+
+  function update(figure) {
+    const { figureProps, beforeProps, raw } = collectProps();
+    const { styles } = figure;
+    figure.setRawProps(raw);
+    styles.getBlockByAlias('figure').setProperties(figureProps);
+    styles.getBlockByAlias('before').setProperties(beforeProps);
+    styles.refresh();
+  }
+
+  [widthInput, heightInput, skewXInput, skewYInput, topInput, leftInput].forEach(el => el.addEventListener('change', () => update(figures.getActive())));
+  resetButt.onclick = function () {
+    form.reset();
+  };
 
 </script>
 </body>
