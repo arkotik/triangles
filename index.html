@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="main.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <title>Figs</title>
+</head>
+<body>
+    <div class="panel">
+        <div class="form-field">
+            <label for="t-width">Width:</label>
+            <input type="number" name="width" id="t-width" value="100">
+        </div>
+        <div class="form-field">
+            <label for="t-height">Height:</label>
+            <input type="number" name="height" id="t-height" value="100">
+        </div>
+        <div class="form-field">
+            <label for="t-skew-x">Skew X:</label>
+            <input type="number" name="height" id="t-skew-x" value="0">
+        </div>
+        <div class="form-field">
+            <label for="t-skew-y">Skew Y:</label>
+            <input type="number" name="height" id="t-skew-y" value="0">
+        </div>
+
+        <div class="wrapper">
+            <div class="triangle"></div>
+        </div>
+    </div>
+<script type="text/javascript">
+  const triangle = document.querySelector('.triangle');
+  const widthInput = document.querySelector('#t-width');
+  const heightInput = document.querySelector('#t-height');
+  const skewXInput = document.querySelector('#t-skew-x');
+  const skewYInput = document.querySelector('#t-skew-y');
+
+  let style = document.createElement('style');
+  style.dataset.id = 'tri';
+  document.head.appendChild(style);
+  style = document.querySelector('head style[data-id="tri"]');
+
+  function reCalc() {
+    const w = +widthInput.value;
+    const h = +heightInput.value;
+    const skewX = +skewXInput.value;
+    const skewY = +skewYInput.value;
+    const dia = getDia(w, h);
+    if (triangle) {
+      const triStyle = (() => {
+        const style = new Styles('.triangle');
+        style.setProperty('width', `${w}px`);
+        style.setProperty('height', `${h}px`);
+        style.setProperty('transform', `skew(${skewX}deg, ${skewY}deg)`);
+        return style.getStyleBlock();
+      })();
+      const beforeStyle = (() => {
+        const halfDia = dia / 2;
+        const style = new Styles('.triangle:before');
+        style.setProperty('width', `${dia}px`);
+        style.setProperty('height', `${halfDia}px`);
+        style.setProperty('position', 'relative');
+        style.setProperty('top', `calc((100% - ${halfDia}px) / 2)`);
+        style.setProperty('left', `calc((100% - ${dia}px) / 2)`);
+        const alpha = getAlpha(w, h);
+        style.setProperty('transform', `rotate(${alpha}deg) translate(0, 50%)`);
+        return style.getStyleBlock();
+      })();
+      style.innerHTML = [triStyle, beforeStyle].join('\n');
+    }
+  }
+  [widthInput, heightInput, skewXInput, skewYInput].forEach(el => el.addEventListener('change', reCalc));
+  reCalc();
+
+</script>
+</body>
+</html>

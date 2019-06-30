@@ -1,0 +1,29 @@
+*, *::after, *::before {
+    box-sizing: border-box;
+}
+.wrapper{
+    width: calc(100% - 300px);
+    position: absolute;
+    right: 0;
+    top: 150px;
+}
+.form-field{
+    padding: 10px;
+    margin: 5px 15px;
+}
+.form-field label{
+    display: block;
+    margin-bottom: 3px;
+}
+.triangle{
+    background: transparent;
+    overflow: hidden;
+    transition: all .5s;
+}
+.triangle:before{
+    position: relative;
+    display: block;
+    content: '';
+    background-color: #a73448;
+    transition: all .5s;
+}
