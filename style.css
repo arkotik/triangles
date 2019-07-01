@@ -18,11 +18,15 @@
     margin-bottom: 3px;
 }
 .triangle{
+    transition: all .5s;
+}
+.figure{
+    position: relative;
     background: transparent;
     overflow: hidden;
     transition: all .5s;
 }
-.triangle:before{
+.figure:before{
     position: relative;
     display: block;
     content: '';

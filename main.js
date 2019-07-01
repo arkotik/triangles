@@ -13,10 +13,13 @@ function createStyleElement(key) {
   return document.querySelector(`head style[data-key="${key}"]`);
 }
 function createFigureElement(key, className) {
-  let el = document.createElement('div');
-  el.className = className;
-  el.dataset.figure = key;
-  window.CONTAINER.appendChild(el);
+  let element = document.createElement('div');
+  let figure = document.createElement('div');
+  element.className = className;
+  figure.className = 'figure';
+  element.dataset.figure = key;
+  element.appendChild(figure);
+  window.CONTAINER.appendChild(element);
   return document.querySelector(`.wrapper div[data-figure="${key}"]`);
 }
 // const simpleRX = /^\d+(?=[A-Za-z]?)/g;
@@ -25,7 +28,6 @@ function createFigureElement(key, className) {
 
 function setInlinePos(f, top, left) {
   const { left: pLeft, top: pTop } = document.querySelector('.wrapper').getBoundingClientRect();
-  // console.log(`${top - pTop - 1}px`, `${left - pLeft - 1}px`);
   f.style.setProperty('left', `${left - pLeft - 1}px`);
   f.style.setProperty('top', `${top - pTop - 1}px`);
 }
@@ -240,17 +242,3 @@ function getAlpha (w, h) {
   const sin = h / getDia(w, h);
   return (Math.asin(sin) / Math.PI) * 180;
 }
-
-function getStyleFuncParams(params) {
-  let style = '';
-  for (const key in params) {
-    // noinspection JSUnfilteredForInLoop
-    style += `${key}(${params[key]})`;
-  }
-  return style;
-}
-//
-// function createTri(id, style) {
-//   const tri = document.createElement('div');
-//   tri.dataset.id = id;
-// }

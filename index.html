@@ -86,7 +86,7 @@
   const hMirrorInput = document.querySelector('#t-mirror-h');
   const vMirrorInput = document.querySelector('#t-mirror-v');
 
-  colorPickerInput.onchange = (e) => {
+  colorPickerInput.onchange = () => {
     colorInput.value = colorPickerInput.value;
   };
   document.querySelector('html').onkeydown = e => {
@@ -162,15 +162,19 @@
     hMirrorInput.checked = mirrorH;
     vMirrorInput.checked = mirrorV;
   }
+
   addButt.onclick = () => {
     figures.setActive(null);
     form.reset();
     const key = `fig-${next()}`;
-    const { figureProps, beforeProps, raw } = collectProps();
-    const figStyle = new StylesBlock(`.triangle.${key}`, figureProps, 'figure');
-    const beforeStyle = new StylesBlock(`.triangle.${key}:before`, beforeProps, 'before');
+    const { handlerProps, figureProps, beforeProps, raw } = collectProps();
+
+    const handlerStyle = new StylesBlock(`.triangle.${key}`, handlerProps, 'handler');
+    const figStyle = new StylesBlock(`.triangle.${key} .figure`, figureProps, 'figure');
+    const beforeStyle = new StylesBlock(`.triangle.${key} .figure:before`, beforeProps, 'before');
+
     const figure = figures.addFigure(key, 'triangle');
-    figure.setStyles([figStyle, beforeStyle]);
+    figure.setStyles([handlerStyle, figStyle, beforeStyle]);
     figure.setRawProps(raw);
     figure.ref.addEventListener('click', () => {
       figures.setActive(key);
@@ -232,13 +236,19 @@
     activeMarkerStyles.getBlockByAlias('main').setProperties(markerProps);
     activeMarkerStyles.refresh();
     return {
-      figureProps: {
+      handlerProps: {
         width: `${width}px`,
         height: `${height}px`,
         top: `${top}px`,
         left: `${left}px`,
         position: 'absolute',
-        transform:`skew(${skewX}deg, ${skewY}deg) rotate(${rotate}deg)`
+        transform: `rotate(${rotate}deg)`
+      },
+      figureProps: {
+        width: `${width}px`,
+        height: `${height}px`,
+        position: 'relative',
+        transform:`skew(${skewX}deg, ${skewY}deg)`
       },
       beforeProps: {
         width: `${dia}px`,
@@ -255,9 +265,10 @@
 
   function update(figure) {
     if (figure) {
-      const { figureProps, beforeProps, raw } = collectProps();
+      const { handlerProps, figureProps, beforeProps, raw } = collectProps();
       const { styles } = figure;
       figure.setRawProps(raw);
+      styles.getBlockByAlias('handler').setProperties(handlerProps);
       styles.getBlockByAlias('figure').setProperties(figureProps);
       styles.getBlockByAlias('before').setProperties(beforeProps);
       styles.refresh();
