@@ -23,7 +23,12 @@ function createFigureElement(key, className) {
 // const skewRX = /(?<=(skew\(|deg,\s))(\d+(?=deg))/g;
 // const literalRX = /^[A-Za-z]+$/g;
 
-
+function setInlinePos(f, top, left) {
+  const { left: pLeft, top: pTop } = document.querySelector('.wrapper').getBoundingClientRect();
+  // console.log(`${top - pTop - 1}px`, `${left - pLeft - 1}px`);
+  f.style.setProperty('left', `${left - pLeft - 1}px`);
+  f.style.setProperty('top', `${top - pTop - 1}px`);
+}
 
 class StylesBlock {
   constructor(selector, properties = {}, alias = '') {
@@ -150,6 +155,12 @@ Figure.prototype.getRawProps = function () {
 Figure.prototype.setRawProps = function (props) {
   this._rawProperties = props;
 };
+Figure.prototype.updateRawProps = function (props) {
+  this._rawProperties = { ...this._rawProperties, ...props };
+};
+Figure.prototype.removeStyles = function () {
+  this._styles.ref.remove();
+};
 
 
 class FiguresList {
@@ -157,14 +168,41 @@ class FiguresList {
     this._items = {};
     this._active = null;
   }
+
+  get active() {
+    return this._active;
+  }
 }
 FiguresList.prototype.addFigure = function (key, className) {
   const fig = new Figure(key, `${className} ${key}`);
   this._items[key] = fig;
   this._active = key;
+  fig.ref.draggable = true;
+  fig.ref.onmousedown = (e) => {
+    window.oX = e.offsetX;
+    window.oY = e.offsetY;
+  };
+  fig.ref.ondragstart = (e) => {
+    setInlinePos(fig.ref, e.y - window.oY, e.x - window.oX);
+  };
+  fig.ref.ondragend = (e) => {
+    const { left: pLeft, top: pTop } = document.querySelector('.wrapper').getBoundingClientRect();
+    const top = e.y - window.oY;
+    const left = e.x - window.oX;
+    const styles = fig.styles.getBlockByAlias('figure');
+    styles.setProperties({
+      top: `${top - pTop - 1}px`,
+      left: `${left - pLeft - 1}px`,
+    });
+    fig.updateRawProps({ top: top - pTop - 1, left: left - pLeft - 1 });
+    fig.ref.removeAttribute('style');
+    setTimeout(() => fig.styles.refresh())
+  };
   return fig;
 };
 FiguresList.prototype.removeFigure = function (key) {
+  this._active = null;
+  this._items[key].removeStyles();
   delete this._items[key];
 };
 FiguresList.prototype.setActive = function (key) {

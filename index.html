@@ -11,11 +11,11 @@
         <form action="#" id="form-t">
             <div class="form-field">
                 <label for="t-top">Top:</label>
-                <input type="number" name="top" id="t-top" value="50">
+                <input type="number" name="top" id="t-top" value="50" min="0">
             </div>
             <div class="form-field">
                 <label for="t-left">Left:</label>
-                <input type="number" name="left" id="t-left" value="50">
+                <input type="number" name="left" id="t-left" value="50" min="0">
             </div>
             <div class="form-field">
                 <label for="t-width">Width:</label>
@@ -26,40 +26,96 @@
                 <input type="number" name="height" id="t-height" value="100">
             </div>
             <div class="form-field">
+                <label for="t-rotate">Rotate:</label>
+                <input type="number" name="rotate" id="t-rotate" value="0">
+            </div>
+            <div class="form-field">
                 <label for="t-skew-x">Skew X:</label>
-                <input type="number" name="skew-x" id="t-skew-x" value="0">
+                <input type="number" name="skew-x" id="t-skew-x" value="0" min="-179" max="179">
             </div>
             <div class="form-field">
                 <label for="t-skew-y">Skew Y:</label>
-                <input type="number" name="skew-y" id="t-skew-y" value="0">
+                <input type="number" name="skew-y" id="t-skew-y" value="0" min="-179" max="179">
             </div>
             <div class="form-field">
-                <input type="button" name="add-tri" id="add-tri-butt" value="Add +">
+                <label for="t-mirror-v">V-Mirror:</label>
+                <input type="checkbox" name="mirror-v" id="t-mirror-v">
             </div>
-            <button id="reset-butt">Reset</button>
+            <div class="form-field">
+                <label for="t-mirror-h">H-Mirror:</label>
+                <input type="checkbox" name="mirror-v" id="t-mirror-h">
+            </div>
+            <div class="form-field">
+                <input type="button" name="add-tri" id="add-tri-butt" value="+ Add">
+            </div>
+            <div class="form-field">
+                <input type="button" name="rem-tri" id="rem-tri-butt" value="Remove">
+            </div>
+            <div class="form-field">
+                <button id="reset-butt">Reset</button>
+            </div>
         </form>
     </div>
     <div class="wrapper">
         <div class="active-marker"></div>
     </div>
 <script type="text/javascript">
+  window.oX = 0;
+  window.oY = 0;
   window.CONTAINER = document.querySelector('.wrapper');
   const form = document.querySelector('#form-t');
   const resetButt = document.querySelector('#reset-butt');
   const addButt = document.querySelector('#add-tri-butt');
+  const remButt = document.querySelector('#rem-tri-butt');
 
   const widthInput = document.querySelector('#t-width');
   const heightInput = document.querySelector('#t-height');
   const topInput = document.querySelector('#t-top');
   const leftInput = document.querySelector('#t-left');
+  const rotateInput = document.querySelector('#t-rotate');
   const skewXInput = document.querySelector('#t-skew-x');
   const skewYInput = document.querySelector('#t-skew-y');
+  const hMirrorInput = document.querySelector('#t-mirror-h');
+  const vMirrorInput = document.querySelector('#t-mirror-v');
+
+  document.querySelector('html').onkeydown = e => {
+    const { key, shiftKey, ctrlKey } = e;
+    const mul = (shiftKey ? 10 : 1) * ((ctrlKey && !shiftKey) ? 100 : 1);
+    switch (key) {
+      case 'ArrowUp':
+        topInput.value = (+topInput.value - mul);
+        break;
+      case 'ArrowDown':
+        topInput.value = (+topInput.value + mul);
+        break;
+      case 'ArrowLeft':
+        leftInput.value = (+leftInput.value - mul);
+        break;
+      case 'ArrowRight':
+        leftInput.value = (+leftInput.value + mul);
+        break;
+      case 'Tab':
+        // todo: add tab action
+        break;
+      case 'Escape':
+        this.figures.setActive(null);
+        break;
+      case 'Delete':
+        if (figures.active) {
+          figures.removeFigure(figures.active);
+          hideMarker();
+        }
+        break;
+    }
+    update(figures.getActive());
+  };
 
   const figures = new FiguresList();
   const next = getIterator();
   const activeMarkerStyles = new StylesList('marker');
   activeMarkerStyles.addBlock('.active-marker', {
     position: 'absolute',
+    display: 'block',
     border: `1px dashed #a5a5a5`
   }, 'main');
   activeMarkerStyles.refresh();
@@ -76,12 +132,13 @@
     figure.setRawProps(raw);
     figure.ref.addEventListener('click', () => {
       figures.setActive(key);
-      const { width, height, skewX, skewY, top, left } = figures.getActive(key).getRawProps();
+      const { width, height, skewX, skewY, top, left, rotate, mirrorH, mirrorV } = figures.getActive(key).getRawProps();
       const markerProps = {
         top: `${top - 5}px`,
         left: `${left - 5}px`,
         width: `${width + 10}px`,
         height: `${height + 10}px`,
+        display: 'block'
       };
       activeMarkerStyles.getBlockByAlias('main').setProperties(markerProps);
       activeMarkerStyles.refresh();
@@ -91,24 +148,61 @@
       skewYInput.value = skewY;
       topInput.value = top;
       leftInput.value = left;
+      rotateInput.value = rotate;
+      hMirrorInput.checked = mirrorH;
+      vMirrorInput.checked = mirrorV;
+    });
+    figure.ref.addEventListener('dragend', (e) => {
+      const { width, height } = figures.getActive(key).getRawProps();
+      const { left: pLeft, top: pTop } = document.querySelector('.wrapper').getBoundingClientRect();
+      const top = e.y - window.oY - pTop - 1;
+      const left = e.x - window.oX - pLeft - 1;
+      topInput.value = top;
+      leftInput.value = left;
+      const markerProps = {
+        top: `${top - 5}px`,
+        left: `${left - 5}px`,
+        width: `${width + 10}px`,
+        height: `${height + 10}px`,
+        display: 'block'
+      };
+      activeMarkerStyles.getBlockByAlias('main').setProperties(markerProps);
+      activeMarkerStyles.refresh();
     });
   };
+  remButt.onclick = () => {
+    if (figures.active) {
+      figures.removeFigure(figures.active);
+      hideMarker();
+    }
+  };
+
+  function hideMarker() {
+    activeMarkerStyles.getBlockByAlias('main').setProperty('display', 'none');
+    activeMarkerStyles.refresh();
+  }
 
   function collectProps() {
     const width = +widthInput.value;
     const height = +heightInput.value;
     const skewX = +skewXInput.value;
     const skewY = +skewYInput.value;
+    const rotate = +rotateInput.value;
     const top = +topInput.value;
     const left = +leftInput.value;
+    const mirrorH = !!hMirrorInput.checked;
+    const mirrorV = !!vMirrorInput.checked;
+    const mirrorHVal = !!hMirrorInput.checked ? -1 : 1;
+    const mirrorVVal = !!vMirrorInput.checked ? 90 : 0;
     const dia = getDia(width, height);
     const halfDia = dia / 2;
-    const alpha = getAlpha(width, height);
+    const alpha = (getAlpha(width, height) + mirrorVVal) * mirrorHVal;
     const markerProps = {
       top: `${top - 5}px`,
       left: `${left - 5}px`,
       width: `${width + 10}px`,
       height: `${height + 10}px`,
+      display: 'block'
     };
     activeMarkerStyles.getBlockByAlias('main').setProperties(markerProps);
     activeMarkerStyles.refresh();
@@ -119,7 +213,7 @@
         top: `${top}px`,
         left: `${left}px`,
         position: 'absolute',
-        transform:`skew(${skewX}deg, ${skewY}deg)`
+        transform:`skew(${skewX}deg, ${skewY}deg) rotate(${rotate}deg)`
       },
       beforeProps: {
         width: `${dia}px`,
@@ -129,7 +223,7 @@
         left: `calc((100% - ${dia}px) / 2)`,
         transform: `rotate(${alpha}deg) translate(0, 50%)`
       },
-      raw: { width, height, skewX, skewY, top, left, dia, alpha }
+      raw: { width, height, skewX, skewY, top, left, dia, alpha, rotate, mirrorH, mirrorV }
     };
   }
 
@@ -142,7 +236,8 @@
     styles.refresh();
   }
 
-  [widthInput, heightInput, skewXInput, skewYInput, topInput, leftInput].forEach(el => el.addEventListener('change', () => update(figures.getActive())));
+  [widthInput, heightInput, skewXInput, skewYInput, topInput, leftInput, rotateInput, hMirrorInput, vMirrorInput].forEach(el => el.addEventListener('change', () => update(figures.getActive())));
+  form.onsubmit = e => e.preventDefault();
   resetButt.onclick = function () {
     form.reset();
   };
