@@ -7,66 +7,72 @@
     <title>Figs</title>
 </head>
 <body>
-    <div class="panel">
-        <form action="#" id="form-t">
-            <div class="form-field">
-                <label for="t-color">Color:</label>
-                <input type="text" name="color" id="t-color" value="#a73448">
-                <label for="t-color-picker"></label>
-                <input type="color" name="color-picker" id="t-color-picker" value="#a73448">
-            </div>
-            <div class="form-field">
-                <label for="t-top">Top:</label>
-                <input type="number" name="top" id="t-top" value="50" min="0">
-            </div>
-            <div class="form-field">
-                <label for="t-left">Left:</label>
-                <input type="number" name="left" id="t-left" value="50" min="0">
-            </div>
-            <div class="form-field">
-                <label for="t-width">Width:</label>
-                <input type="number" name="width" id="t-width" value="100">
-            </div>
-            <div class="form-field">
-                <label for="t-height">Height:</label>
-                <input type="number" name="height" id="t-height" value="100">
-            </div>
-            <div class="form-field">
-                <label for="t-rotate">Rotate:</label>
-                <input type="number" name="rotate" id="t-rotate" value="0">
-            </div>
-            <div class="form-field">
-                <label for="t-skew-x">Skew X:</label>
-                <input type="number" name="skew-x" id="t-skew-x" value="0" min="-179" max="179">
-            </div>
-            <div class="form-field">
-                <label for="t-skew-y">Skew Y:</label>
-                <input type="number" name="skew-y" id="t-skew-y" value="0" min="-179" max="179">
-            </div>
-            <div class="form-field">
-                <label for="t-mirror-v">V-Mirror:</label>
-                <input type="checkbox" name="mirror-v" id="t-mirror-v">
-            </div>
-            <div class="form-field">
-                <label for="t-mirror-h">H-Mirror:</label>
-                <input type="checkbox" name="mirror-v" id="t-mirror-h">
-            </div>
-            <div class="form-field">
-                <input type="button" name="add-tri" id="add-tri-butt" value="+ Add">
-            </div>
-            <div class="form-field">
-                <input type="button" name="duplicate-butt" id="duplicate-butt" value="Duplicate">
-            </div>
-            <div class="form-field">
-                <input type="button" name="rem-tri" id="rem-tri-butt" value="Remove">
-            </div>
-            <div class="form-field">
-                <button id="reset-butt">Reset</button>
-            </div>
-        </form>
-    </div>
-    <div class="wrapper">
-        <div class="active-marker"></div>
+    <header>
+        <div class="logo">Triangler</div>
+        <div class="top-panel"></div>
+    </header>
+    <div class="content">
+        <div class="panel">
+            <form action="#" id="form-t">
+                <div class="form-field">
+                    <label for="t-color">Color:</label>
+                    <input type="text" name="color" id="t-color" value="#a73448">
+                    <label for="t-color-picker"></label>
+                    <input type="color" name="color-picker" id="t-color-picker" value="#a73448">
+                </div>
+                <div class="form-field">
+                    <label for="t-top">Top:</label>
+                    <input type="number" name="top" id="t-top" value="50" min="0">
+                </div>
+                <div class="form-field">
+                    <label for="t-left">Left:</label>
+                    <input type="number" name="left" id="t-left" value="50" min="0">
+                </div>
+                <div class="form-field">
+                    <label for="t-width">Width:</label>
+                    <input type="number" name="width" id="t-width" value="100">
+                </div>
+                <div class="form-field">
+                    <label for="t-height">Height:</label>
+                    <input type="number" name="height" id="t-height" value="100">
+                </div>
+                <div class="form-field">
+                    <label for="t-rotate">Rotate:</label>
+                    <input type="number" name="rotate" id="t-rotate" value="0">
+                </div>
+                <div class="form-field">
+                    <label for="t-skew-x">Skew X:</label>
+                    <input type="number" name="skew-x" id="t-skew-x" value="0" min="-179" max="179">
+                </div>
+                <div class="form-field">
+                    <label for="t-skew-y">Skew Y:</label>
+                    <input type="number" name="skew-y" id="t-skew-y" value="0" min="-179" max="179">
+                </div>
+                <div class="form-field">
+                    <label for="t-mirror-v">V-Mirror:</label>
+                    <input type="checkbox" name="mirror-v" id="t-mirror-v">
+                </div>
+                <div class="form-field">
+                    <label for="t-mirror-h">H-Mirror:</label>
+                    <input type="checkbox" name="mirror-v" id="t-mirror-h">
+                </div>
+                <div class="form-field">
+                    <input type="button" name="add-tri" id="add-tri-butt" value="+ Add">
+                </div>
+                <div class="form-field">
+                    <input type="button" name="duplicate-butt" id="duplicate-butt" value="Duplicate">
+                </div>
+                <div class="form-field">
+                    <input type="button" name="rem-tri" id="rem-tri-butt" value="Remove">
+                </div>
+                <div class="form-field">
+                    <button id="reset-butt">Reset</button>
+                </div>
+            </form>
+        </div>
+        <div class="wrapper">
+            <div class="active-marker"></div>
+        </div>
     </div>
 <script type="text/javascript">
   window.oX = 0;
