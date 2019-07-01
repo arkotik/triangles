@@ -204,7 +204,7 @@ FiguresList.prototype.addFigure = function (key, className) {
     const { left: pLeft, top: pTop } = document.querySelector('.wrapper').getBoundingClientRect();
     const top = e.y - window.oY;
     const left = e.x - window.oX;
-    const styles = fig.styles.getBlockByAlias('figure');
+    const styles = fig.styles.getBlockByAlias('handler');
     styles.setProperties({
       top: `${top - pTop - 1}px`,
       left: `${left - pLeft - 1}px`,

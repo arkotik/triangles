@@ -55,6 +55,9 @@
                 <input type="button" name="add-tri" id="add-tri-butt" value="+ Add">
             </div>
             <div class="form-field">
+                <input type="button" name="duplicate-butt" id="duplicate-butt" value="Duplicate">
+            </div>
+            <div class="form-field">
                 <input type="button" name="rem-tri" id="rem-tri-butt" value="Remove">
             </div>
             <div class="form-field">
@@ -73,6 +76,7 @@
   const resetButt = document.querySelector('#reset-butt');
   const addButt = document.querySelector('#add-tri-butt');
   const remButt = document.querySelector('#rem-tri-butt');
+  const dupButt = document.querySelector('#duplicate-butt');
 
   const colorInput = document.querySelector('#t-color');
   const colorPickerInput = document.querySelector('#t-color-picker');
@@ -163,9 +167,14 @@
     vMirrorInput.checked = mirrorV;
   }
 
-  addButt.onclick = () => {
+  function addFig(clear = true) {
     figures.setActive(null);
-    form.reset();
+    if (clear) {
+      form.reset();
+    } else {
+      topInput.value -= -15;
+      leftInput.value -= -15;
+    }
     const key = `fig-${next()}`;
     const { handlerProps, figureProps, beforeProps, raw } = collectProps();
 
@@ -197,12 +206,19 @@
       activeMarkerStyles.getBlockByAlias('main').setProperties(markerProps);
       activeMarkerStyles.refresh();
     });
+  }
+
+  addButt.onclick = () => {
+    addFig();
   };
   remButt.onclick = () => {
     if (figures.active) {
       figures.removeFigure(figures.active);
       hideMarker();
     }
+  };
+  dupButt.onclick = () => {
+    addFig(false);
   };
 
   function hideMarker() {
