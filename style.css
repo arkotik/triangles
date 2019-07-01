@@ -1,5 +1,29 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
 *, *::after, *::before {
     box-sizing: border-box;
+}
+header{
+    height: 50px;
+    display: flex;
+    flex-wrap: nowrap;
+}
+header .logo{
+    height: 100%;
+    width: 200px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+header .top-panel{
+    height: 100%;
+    flex-grow: 2;
+
+}
+.panel{
+    width: 300px
 }
 .wrapper{
     width: calc(100% - 315px);
@@ -10,8 +34,8 @@
     min-height: 80vh;
 }
 .form-field{
-    padding: 10px;
-    margin: 5px 15px;
+    padding: 5px;
+    margin: 5px 10px;
 }
 .form-field label{
     display: block;
