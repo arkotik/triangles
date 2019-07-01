@@ -172,6 +172,19 @@ class FiguresList {
   get active() {
     return this._active;
   }
+  get nextKey() {
+    const keys = Object.keys(this._items);
+    if (this._active === null) {
+      return keys[0] || null;
+    } else {
+      const curIdx = keys.indexOf(this._active);
+      if (curIdx === keys.length - 1) {
+        return keys[0] || null;
+      } else {
+        return keys[curIdx + 1] || null;
+      }
+    }
+  }
 }
 FiguresList.prototype.addFigure = function (key, className) {
   const fig = new Figure(key, `${className} ${key}`);

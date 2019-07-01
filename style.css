@@ -26,6 +26,6 @@
     position: relative;
     display: block;
     content: '';
-    background-color: #a73448;
+    background: #a73448;
     transition: all .5s;
 }
