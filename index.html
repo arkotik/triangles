@@ -342,6 +342,12 @@
     };
   };
   submitPointsButt.onclick = () => {
+    // window.points = [
+    //   [375, 182],
+    //   [315, 304],
+    //   [499, 325]
+    // ];
+    // window.points.forEach(([x, y]) => wrapper.appendChild(getPoint(y, x)));
     console.log(window.points);
     const props = calcTriangleProps(...window.points);
     console.log(props);
@@ -352,10 +358,10 @@
     const left = x - (width / 2);
     widthInput.value = width;
     heightInput.value = height;
-    skewXInput.value = rotate;
+    skewXInput.value = alpha;
     topInput.value = top;
     leftInput.value = left;
-    rotateInput.value = alpha;
+    rotateInput.value = rotate;
     update(figures.getActive());
   };
   clearPointsButt.onclick = () => {

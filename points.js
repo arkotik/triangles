@@ -62,14 +62,14 @@ function calcTriangleProps(A, B, C) { // [ax, ay], [bx, by], [cx, cy]
   const { a, b, c } = triangle;
   const longest = a.length > b.length ? (a.length > c.length ? 'a' : 'c') : (b.length > c.length ? 'b' : 'c');
   const shortest = a.length > b.length ? (b.length > c.length ? 'c' : 'b') : (a.length > c.length ? 'c' : 'a');
-  const third = Object.keys(triangle).filter(el => ![longest, shortest].includes(el));
-  const center = sectionCenter(...triangle[third].vec); // Figure center. top = height / 2; left = width / 2;
+  const third = Object.keys(triangle).filter(el => ![longest, shortest].includes(el)); // width
+  const center = sectionCenter(...triangle[longest].vec); // Figure center. top = height / 2; left = width / 2;
 
-  const cosAlpha = getCosAlpha(triangle[third].length, triangle[longest].length, triangle[shortest].length);
+  const cosAlpha = getCosAlpha(triangle[longest].length, triangle[third].length, triangle[shortest].length);
   const alpha = getAlphaByCos(cosAlpha); // skewX
   const height = Math.abs(getTriangleHeight(alpha, triangle[shortest].length)); // height
-  const rotate = getRotateAngle(...triangle[longest].vec);
-  return { triangle, width: triangle[shortest].length, height, center, rotate, alpha };
+  const rotate = getRotateAngle(...triangle[third].vec);
+  return { triangle, width: triangle[third].length, height, center, rotate, alpha: -90 + alpha };
   // console.log({ a, b, c, center, alpha, h, rotAngle });
 }
 
