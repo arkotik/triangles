@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <script src="main.js"></script>
-    <script src="points.js"></script>
     <link rel="stylesheet" href="style.css" />
     <title>Figs</title>
 </head>
@@ -11,9 +10,14 @@
     <header>
         <div class="logo">Triangler</div>
         <div class="top-panel">
-            <button id="add-points">Add points</button>
+            <!--<button id="add-points">Add points</button>
             <button id="submit-points">Submit</button>
-            <button id="clear-points">Clear</button>
+            <button id="clear-points">Clear</button>-->
+            <div class="buttons-panel">
+                <div id="add-tri-butt" class="action-button success"><span>+ Add</span></div>
+                <div id="rem-tri-butt" class="action-button warning disabled"><span>Remove</span></div>
+                <div id="duplicate-butt" class="action-button info disabled"><span>Make copy</span></div>
+            </div>
         </div>
     </header>
     <div class="content">
@@ -62,16 +66,7 @@
                     <input type="checkbox" name="mirror-v" id="t-mirror-h">
                 </div>
                 <div class="form-field">
-                    <input type="button" name="add-tri" id="add-tri-butt" value="+ Add">
-                </div>
-                <div class="form-field">
-                    <input type="button" name="duplicate-butt" id="duplicate-butt" value="Duplicate">
-                </div>
-                <div class="form-field">
-                    <input type="button" name="rem-tri" id="rem-tri-butt" value="Remove">
-                </div>
-                <div class="form-field">
-                    <button id="reset-butt">Reset</button>
+                    <div id="reset-butt" class="action-button warning"><span>Reset</span></div>
                 </div>
             </form>
         </div>
@@ -79,7 +74,7 @@
             <div class="active-marker"></div>
         </div>
     </div>
-<script type="text/javascript">
+    <script type="text/javascript">
   window.oX = 0;
   window.oY = 0;
   window.CONTAINER = document.querySelector('.wrapper');
@@ -88,10 +83,37 @@
   const addButt = document.querySelector('#add-tri-butt');
   const remButt = document.querySelector('#rem-tri-butt');
   const dupButt = document.querySelector('#duplicate-butt');
-  const addPointsButt = document.querySelector('#add-points');
-  const submitPointsButt = document.querySelector('#submit-points');
-  const clearPointsButt = document.querySelector('#clear-points');
+  // const addPointsButt = document.querySelector('#add-points');
+  // const submitPointsButt = document.querySelector('#submit-points');
+  // const clearPointsButt = document.querySelector('#clear-points');
 
+  const state = {
+    add: {
+      ref: addButt,
+      disabled: false
+    },
+    remove: {
+      ref: remButt,
+      disabled: true
+    },
+    reset: {
+      ref: resetButt,
+      disabled: false
+    },
+    duplicate: {
+      ref: dupButt,
+      disabled: true
+    }
+  };
+
+  function disable(name) {
+    state[name].disabled = true;
+    state[name].ref.classList.add('disabled');
+  }
+  function enable(name) {
+    state[name].disabled = false;
+    state[name].ref.classList.remove('disabled');
+  }
   const colorInput = document.querySelector('#t-color');
   const colorPickerInput = document.querySelector('#t-color-picker');
   const widthInput = document.querySelector('#t-width');
@@ -132,11 +154,15 @@
           break;
         case 'Escape':
           figures.setActive(null);
+          disable('remove');
+          disable('duplicate');
           break;
         case 'Delete':
           if (figures.active) {
             figures.removeFigure(figures.active);
             hideMarker();
+            disable('remove');
+            disable('duplicate');
           }
           break;
         case 'NumpadAdd':
@@ -201,6 +227,8 @@
     figure.setRawProps(raw);
     figure.ref.addEventListener('click', () => {
       figures.setActive(key);
+      enable('remove');
+      enable('duplicate');
       updateFormAndMarker(key);
     });
     figure.ref.addEventListener('dragend', (e) => {
@@ -220,19 +248,28 @@
       activeMarkerStyles.getBlockByAlias('main').setProperties(markerProps);
       activeMarkerStyles.refresh();
     });
+    enable('remove');
+    enable('duplicate');
   }
 
   addButt.onclick = () => {
-    addFig();
+    if (!state.add.disabled) {
+      addFig();
+      remButt.classList.remove('disabled');
+    }
   };
   remButt.onclick = () => {
-    if (figures.active) {
+    if (!state.remove.disabled && figures.active) {
       figures.removeFigure(figures.active);
       hideMarker();
+      disable('remove');
+      disable('duplicate');
     }
   };
   dupButt.onclick = () => {
-    addFig(false);
+    if (!state.duplicate.disabled) {
+      addFig(false);
+    }
   };
 
   function hideMarker() {
@@ -314,7 +351,10 @@
     el.addEventListener('focus', () => (window.formFocused = true));
     el.addEventListener('blur', () => (window.formFocused = false));
   });
-  form.onsubmit = e => e.preventDefault();
+  form.onsubmit = e => {
+    e.preventDefault();
+    return false;
+  };
   resetButt.onclick = function () {
     form.reset();
     const active = figures.getActive();
@@ -323,7 +363,8 @@
     }
   };
 
-  window.points = [];
+/** ++++++++++++++++++++++++++ points +++++++++++++++++++++++++++++++++ */
+/*  window.points = [];
   function getPoint(top, left) {
     const p = document.createElement('div');
     p.className = 'point';
@@ -342,13 +383,18 @@
     };
   };
   submitPointsButt.onclick = () => {
+    const transformPoints = (points) => {
+      return points.map(([x, y]) => [x, -y]);
+    };
     // window.points = [
-    //   [375, 182],
-    //   [315, 304],
-    //   [499, 325]
+    //   [100, 100],
+    //   [100, 200],
+    //   [200, 200]
     // ];
-    // window.points.forEach(([x, y]) => wrapper.appendChild(getPoint(y, x)));
+
+    window.points.forEach(([x, y]) => wrapper.appendChild(getPoint(y, x)));
     console.log(window.points);
+    // const props = calcTriangleProps(...transformPoints(window.points));
     const props = calcTriangleProps(...window.points);
     console.log(props);
     const { triangle, width, height, center, rotate, alpha } = props;
@@ -368,7 +414,7 @@
     window.points = [];
     wrapper.querySelectorAll('.point').forEach(el => el.remove());
   }
-
+*/
 </script>
 </body>
 </html>

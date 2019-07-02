@@ -171,6 +171,9 @@ class FiguresList {
     this._active = null;
   }
 
+  get length() {
+    return Object.keys(this._items).length;
+  }
   get active() {
     return this._active;
   }
@@ -218,6 +221,7 @@ FiguresList.prototype.addFigure = function (key, className) {
 FiguresList.prototype.removeFigure = function (key) {
   this._active = null;
   this._items[key].removeStyles();
+  this._items[key].ref.remove();
   delete this._items[key];
 };
 FiguresList.prototype.setActive = function (key) {

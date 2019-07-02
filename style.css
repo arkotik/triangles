@@ -4,6 +4,7 @@ html, body {
 }
 *, *::after, *::before {
     box-sizing: border-box;
+    font-family: Roboto,sans-serif;
 }
 header{
     height: 50px;
@@ -62,4 +63,80 @@ header .top-panel{
     width: 0;
     height: 0;
     position: absolute;
+}
+.buttons-panel{
+    height: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+.action-button{
+    display: inline-flex;
+    min-width: 36px;
+    height: 36px;
+    border-radius: 3px;
+    padding: 0 10px;
+    justify-content: center;
+    align-items: center;
+    margin: 0 5px;
+    cursor: pointer;
+    font-size: .9em;
+    user-select: none;
+}
+.disabled{
+    cursor: default!important;
+    filter: grayscale(90%);
+}
+.success, .danger, .warning, .info, .primary {
+    transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1);
+}
+.dark-blue{
+    background-image: radial-gradient(circle,#36465f,#313c51,#2b3344,#252a37,#1e212b);
+    color: #fff;
+}
+.primary{
+    background-color: #9c27b0;
+    color: #fff;
+}
+.warning{
+    background-color: #ff9800;
+    color: #fff;
+}
+.danger{
+    background-color: #f44336;
+    color: #fff;
+}
+.success{
+    background-color: #61b261;
+    color: #fff;
+}
+.info{
+    background-color: #00acc1;
+    color: #fff;
+}
+.rose{
+    background-color: #e91e63;
+    color: #fff;
+}
+.gray{
+    background-color: #999999;
+    color: #fff;
+}
+.primary:hover{
+    box-shadow: 0 12px 20px -10px rgba(156, 39, 176, 0.28), 0 4px 20px 0 rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(156, 39, 176, 0.2);
+}
+.warning:hover{
+    box-shadow: 0 12px 20px -10px rgba(255, 152, 0, 0.28), 0 4px 20px 0 rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(255, 152, 0, 0.2);
+}
+.danger:hover{
+    box-shadow: 0 12px 20px -10px rgba(244, 67, 54, 0.28), 0 4px 20px 0 rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(244, 67, 54, 0.2);
+}
+.success:hover{
+    box-shadow: 0 12px 20px -10px rgba(76, 175, 80, 0.28), 0 4px 20px 0 rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(76, 175, 80, 0.2);
+}
+.info:hover{
+    box-shadow: 0 12px 20px -10px rgba(0, 188, 212, 0.28), 0 4px 20px 0 rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(0, 188, 212, 0.2);
+}
+.dark-blue:hover{
+    box-shadow: 0 12px 20px -10px rgba(0, 26, 212, 0.28), 0 4px 20px 0 rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(0, 144, 212, 0.2);
 }
