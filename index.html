@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <script src="main.js"></script>
+    <script src="points.js"></script>
     <link rel="stylesheet" href="style.css" />
     <title>Figs</title>
 </head>
@@ -10,13 +11,13 @@
     <header>
         <div class="logo">Triangler</div>
         <div class="top-panel">
-            <!--<button id="add-points">Add points</button>
-            <button id="submit-points">Submit</button>
-            <button id="clear-points">Clear</button>-->
             <div class="buttons-panel">
                 <div id="add-tri-butt" class="action-button success"><span>+ Add</span></div>
                 <div id="rem-tri-butt" class="action-button warning disabled"><span>Remove</span></div>
                 <div id="duplicate-butt" class="action-button info disabled"><span>Make copy</span></div>
+                <button id="add-points">Add points</button>
+                <button id="submit-points">Submit</button>
+                <button id="clear-points">Clear</button>
             </div>
         </div>
     </header>
@@ -83,9 +84,9 @@
   const addButt = document.querySelector('#add-tri-butt');
   const remButt = document.querySelector('#rem-tri-butt');
   const dupButt = document.querySelector('#duplicate-butt');
-  // const addPointsButt = document.querySelector('#add-points');
-  // const submitPointsButt = document.querySelector('#submit-points');
-  // const clearPointsButt = document.querySelector('#clear-points');
+  const addPointsButt = document.querySelector('#add-points');
+  const submitPointsButt = document.querySelector('#submit-points');
+  const clearPointsButt = document.querySelector('#clear-points');
 
   const state = {
     add: {
@@ -355,7 +356,7 @@
   };
 
 /** ++++++++++++++++++++++++++ points +++++++++++++++++++++++++++++++++ */
-/*  window.points = [];
+  window.points = [];
   function getPoint(top, left) {
     const p = document.createElement('div');
     p.className = 'point';
@@ -385,27 +386,29 @@
 
     window.points.forEach(([x, y]) => wrapper.appendChild(getPoint(y, x)));
     console.log(window.points);
-    // const props = calcTriangleProps(...transformPoints(window.points));
-    const props = calcTriangleProps(...window.points);
-    console.log(props);
-    const { triangle, width, height, center, rotate, alpha } = props;
-    console.log({ triangle, width, height, center, rotate, alpha });
-    const [x, y] = center;
-    const top = y - (height / 2);
-    const left = x - (width / 2);
-    widthInput.value = width;
-    heightInput.value = height;
-    skewXInput.value = alpha;
+    const t = new Triangle(...transformPoints(window.points));
+    console.log(t);
+    // const props = {};
+    // const props = calcTriangleProps(...window.points);
+    // console.log(props);
+    // const { triangle, width, height, center, rotate, alpha } = props;
+    // console.log({ triangle, width, height, center, rotate, alpha });
+    const [x, y] = t.center;
+    const top = -y - (t.height / 2);
+    const left = x - (t.width / 2);
+    const rot = t.rotate;
+    widthInput.value = t.width;
+    heightInput.value = t.height;
+    skewXInput.value = t.skew;
     topInput.value = top;
     leftInput.value = left;
-    rotateInput.value = rotate;
+    rotateInput.value = isNaN(t.rotate) ? 0 : rot;
     update(figures.getActive());
   };
   clearPointsButt.onclick = () => {
     window.points = [];
     wrapper.querySelectorAll('.point').forEach(el => el.remove());
   }
-*/
 </script>
 </body>
 </html>
