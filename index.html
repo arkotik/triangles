@@ -216,14 +216,13 @@
       leftInput.value -= -15;
     }
     const key = `fig-${next()}`;
-    const { handlerProps, figureProps, beforeProps, raw } = collectProps();
+    const { figureProps, beforeProps, raw } = collectProps();
 
-    const handlerStyle = new StylesBlock(`.triangle.${key}`, handlerProps, 'handler');
-    const figStyle = new StylesBlock(`.triangle.${key} .figure`, figureProps, 'figure');
-    const beforeStyle = new StylesBlock(`.triangle.${key} .figure:before`, beforeProps, 'before');
+    const figStyle = new StylesBlock(`.triangle.${key}`, figureProps, 'figure');
+    const beforeStyle = new StylesBlock(`.triangle.${key}:before`, beforeProps, 'before');
 
     const figure = figures.addFigure(key, 'triangle');
-    figure.setStyles([handlerStyle, figStyle, beforeStyle]);
+    figure.setStyles([figStyle, beforeStyle]);
     figure.setRawProps(raw);
     figure.ref.addEventListener('click', () => {
       figures.setActive(key);
@@ -303,19 +302,12 @@
     activeMarkerStyles.getBlockByAlias('main').setProperties(markerProps);
     activeMarkerStyles.refresh();
     return {
-      handlerProps: {
-        width: `${width}px`,
-        height: `${height}px`,
+      figureProps: {
         top: `${top}px`,
         left: `${left}px`,
-        position: 'absolute',
-        transform: `rotate(${rotate}deg)`
-      },
-      figureProps: {
         width: `${width}px`,
         height: `${height}px`,
-        position: 'relative',
-        transform:`skew(${skewX}deg, ${skewY}deg)`
+        transform:`rotate(${rotate}deg) skew(${skewX}deg, ${skewY}deg)`
       },
       beforeProps: {
         width: `${dia}px`,
@@ -332,10 +324,9 @@
 
   function update(figure) {
     if (figure) {
-      const { handlerProps, figureProps, beforeProps, raw } = collectProps();
+      const { figureProps, beforeProps, raw } = collectProps();
       const { styles } = figure;
       figure.setRawProps(raw);
-      styles.getBlockByAlias('handler').setProperties(handlerProps);
       styles.getBlockByAlias('figure').setProperties(figureProps);
       styles.getBlockByAlias('before').setProperties(beforeProps);
       styles.refresh();

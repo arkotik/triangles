@@ -43,15 +43,12 @@ header .top-panel{
     margin-bottom: 3px;
 }
 .triangle{
-    transition: all .5s;
-}
-.figure{
-    position: relative;
+    position: absolute;
     background: transparent;
     overflow: hidden;
     transition: all .5s;
 }
-.figure:before{
+.triangle:before{
     position: relative;
     display: block;
     content: '';

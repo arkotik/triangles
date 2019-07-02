@@ -13,13 +13,10 @@ function createStyleElement(key) {
   return document.querySelector(`head style[data-key="${key}"]`);
 }
 function createFigureElement(key, className) {
-  let element = document.createElement('div');
-  let figure = document.createElement('div');
-  element.className = className;
-  figure.className = 'figure';
-  element.dataset.figure = key;
-  element.appendChild(figure);
-  window.CONTAINER.appendChild(element);
+  let el = document.createElement('div');
+  el.className = className;
+  el.dataset.figure = key;
+  window.CONTAINER.appendChild(el);
   return document.querySelector(`.wrapper div[data-figure="${key}"]`);
 }
 // const simpleRX = /^\d+(?=[A-Za-z]?)/g;
@@ -207,7 +204,7 @@ FiguresList.prototype.addFigure = function (key, className) {
     const { left: pLeft, top: pTop } = document.querySelector('.wrapper').getBoundingClientRect();
     const top = e.y - window.oY;
     const left = e.x - window.oX;
-    const styles = fig.styles.getBlockByAlias('handler');
+    const styles = fig.styles.getBlockByAlias('figure');
     styles.setProperties({
       top: `${top - pTop - 1}px`,
       left: `${left - pLeft - 1}px`,
