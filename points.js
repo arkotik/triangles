@@ -45,6 +45,7 @@ class Triangle {
       b: new Section(C, A),
       c: new Section(A, B),
     };
+    this._rawPoints = { A, B, C };
     this._corners = (({ a, b, c }) => {
       return {
         A: {
@@ -74,9 +75,13 @@ class Triangle {
       const [point] = [A, B].sort(({ x: Ax }, { x: Bx }) => Ax - Bx);
       return point;
     })(this._sides[this._baseSide]);
-    this._baseCorner = ((basePoint, corners) => {
-      return Object.values(corners).find(({ point }) => point[0] === basePoint.x && point[1] === basePoint.y).angle;
+    this._baseCornerName = ((basePoint, corners) => {
+      return Object.keys(corners).find((name) => {
+        const { point } = corners[name];
+        return point[0] === basePoint.x && point[1] === basePoint.y
+      });
     })(this._basePoint, this._corners);
+    this._baseCorner = this._corners[this._baseCornerName].angle;
   }
 
   get width() {
@@ -88,8 +93,10 @@ class Triangle {
   }
 
   get center() {
-    const { x, y } = this._basePoint;
-    const side = Object.values(this._sides).find(({ A, B }) => ((A.x !== x) + (A.y !== y) + (B.x !== x) + (B.y !== y) > 1)); // todo: change logic
+    const BCN = this._baseCornerName;
+    const { A, B, C } = this._rawPoints;
+    const pair = BCN === 'A' ? [B, C] : (BCN === 'B' ? [A, C] : [A, B]);
+    const side = new Section(...pair);
     return side.center;
   }
 
