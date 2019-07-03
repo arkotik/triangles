@@ -15,9 +15,9 @@
                 <div id="add-tri-butt" class="action-button success"><span>+ Add</span></div>
                 <div id="rem-tri-butt" class="action-button warning disabled"><span>Remove</span></div>
                 <div id="duplicate-butt" class="action-button info disabled"><span>Make copy</span></div>
-                <button id="add-points">Add points</button>
-                <button id="submit-points">Submit</button>
-                <button id="clear-points">Clear</button>
+                <button id="add-points" class="action-button info">Add points</button>
+                <button id="submit-points" class="action-button info">Submit</button>
+                <button id="clear-points" class="action-button info">Clear</button>
             </div>
         </div>
     </header>
@@ -216,7 +216,8 @@
       topInput.value -= -15;
       leftInput.value -= -15;
     }
-    const key = `fig-${next()}`;
+    const index = next();
+    const key = `fig-${index}`;
     const { figureProps, beforeProps, raw } = collectProps();
 
     const figStyle = new StylesBlock(`.triangle.${key}`, figureProps, 'figure');
@@ -225,6 +226,13 @@
     const figure = figures.addFigure(key, 'triangle');
     figure.setStyles([figStyle, beforeStyle]);
     figure.setRawProps(raw);
+    figure.addTitle(index + 1, {
+      position: 'absolute',
+      left: `${raw.left}px`,
+      top: `${raw.top - 25}px`,
+      width: `${raw.width}px`,
+      'text-align': 'center'
+    });
     figure.ref.addEventListener('click', () => {
       figures.setActive(key);
       enable('remove');
@@ -330,6 +338,13 @@
       figure.setRawProps(raw);
       styles.getBlockByAlias('figure').setProperties(figureProps);
       styles.getBlockByAlias('before').setProperties(beforeProps);
+      styles.getBlockByAlias('title').setProperties({
+        position: 'absolute',
+        left: `${raw.left}px`,
+        top: `${raw.top - 25}px`,
+        width: `${raw.width}px`,
+        'text-align': 'center'
+      });
       styles.refresh();
     } else {
       form.reset();
@@ -404,8 +419,10 @@
     leftInput.value = left;
     rotateInput.value = isNaN(t.rotate) ? 0 : rot;
     update(figures.getActive());
+    clearPoints();
   };
-  clearPointsButt.onclick = () => {
+  clearPointsButt.onclick = clearPoints;
+  function clearPoints() {
     window.points = [];
     wrapper.querySelectorAll('.point').forEach(el => el.remove());
   }

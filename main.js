@@ -124,12 +124,16 @@ class Figure {
   constructor(key, className = '') {
     this._key = key;
     this._ref = createFigureElement(key, className);
+    this._titleRef = null;
     this._className = className;
     this._styles = new StylesList(key);
     this._rawProperties = {};
   }
   get ref() {
     return this._ref;
+  }
+  get titleRef() {
+    return this._titleRef;
   }
   get key() {
     return this._key;
@@ -159,6 +163,16 @@ Figure.prototype.updateRawProps = function (props) {
 };
 Figure.prototype.removeStyles = function () {
   this._styles.ref.remove();
+};
+Figure.prototype.addTitle = function (title, props = {}) {
+  const numberEl = document.createElement('div');
+  const className = `${this._key}-title`;
+  numberEl.innerText = title;
+  numberEl.className = className;
+  window.CONTAINER.appendChild(numberEl);
+  this._styles.addBlock(`.${className}`, props, 'title');
+  this._styles.refresh();
+  this._titleRef = document.querySelector(`.wrapper div.${className}`);
 };
 
 
@@ -205,11 +219,18 @@ FiguresList.prototype.addFigure = function (key, className) {
     const top = e.y - window.oY;
     const left = e.x - window.oX;
     const styles = fig.styles.getBlockByAlias('figure');
+    const title = fig.styles.getBlockByAlias('title');
+    const newTop = top - pTop - 1;
+    const newLeft = left - pLeft - 1;
     styles.setProperties({
-      top: `${top - pTop - 1}px`,
-      left: `${left - pLeft - 1}px`,
+      top: `${newTop}px`,
+      left: `${newLeft}px`,
     });
-    fig.updateRawProps({ top: top - pTop - 1, left: left - pLeft - 1 });
+    title.setProperties({
+      top: `${newTop - 25}px`,
+      left: `${newLeft}px`,
+    });
+    fig.updateRawProps({ top: newTop, left: newLeft });
     fig.ref.removeAttribute('style');
     setTimeout(() => fig.styles.refresh())
   };
@@ -218,6 +239,7 @@ FiguresList.prototype.addFigure = function (key, className) {
 FiguresList.prototype.removeFigure = function (key) {
   this._active = null;
   this._items[key].removeStyles();
+  this._items[key].titleRef.remove();
   this._items[key].ref.remove();
   delete this._items[key];
 };
