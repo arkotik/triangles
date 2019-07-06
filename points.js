@@ -65,9 +65,9 @@ class Triangle {
     this._baseSide = ((points, sides) => {
       const [A, B] = points.sort(([Ax, Ay], [Bx, By]) => Ay - By);
       return Object.keys(sides).find((name) => {
-        const {A: pA, B: pB} = sides[name];
-        const {x: Ax, y: Ay} = pA;
-        const {x: Bx, y: By} = pB;
+        const {x: Ax, y: Ay} = sides[name].A;
+        const {x: Bx, y: By} = sides[name].B;
+
         return (Ax === A[0] && Ay === A[1] && Bx === B[0] && By === B[1]) || (Ax === B[0] && Ay === B[1] && Bx === A[0] && By === A[1]);
       });
     })([A, B, C], this._sides);
@@ -101,8 +101,11 @@ class Triangle {
   }
 
   get height() {
-    const name = this._baseSide === 'a' ? 'c' : (this._baseSide === 'b' ? 'a' : 'b');
+    const sides = ['a', 'b', 'c'];
+    const BCN = this._baseCornerName.toLowerCase();
     const alpha = this._baseCorner;
+    // const name = this._baseSide === 'a' ? 'c' : (this._baseSide === 'b' ? 'a' : 'b');
+    const [name] = sides.filter(el => el !== BCN && el !== this._baseSide);
     return this._sides[name].length * Math.sin(alpha * Math.PI / 180);
   }
 
@@ -116,17 +119,19 @@ class Triangle {
       return 0;
     }
     let P = [];
-    let flag = false;
-    if ((A.x < B.x && A.y > B.y) || (B.x < A.x && B.y > A.x)) {
+    let flag = 0;
+    if ((A.x < B.x && A.y < B.y) || (A.x > B.x && A.y > B.y)) {
       P = [A.x, B.y];
+      console.log((A.x < B.x && A.y < B.y), (A.x > B.x && A.y > B.y));
+      flag = (A.x < B.x && A.y < B.y) ? 2 : 1;
     }
-    if ((A.x > B.x && B.y < A.y) || (B.x > A.x && A.y < B.y)) {
-      P = [B.x, A.y];
-      flag = true
+    if ((A.x < B.x && A.y > B.y) || (A.x > B.x && A.y < B.y)) {
+      P = [A.x, B.y];
     }
     const sin = (new Section(B.coordinates, P)).length / baseSide.length;
     const angle = (Math.asin(sin) / Math.PI) * 180;
-    return !flag ? 90 - angle : angle * -1;
+    console.log(angle, flag);
+    return flag ? (flag === 2 ? 90 - angle : angle) * -1 : 90 - angle;
   }
 
   static calcAngle(a, b, c) {
