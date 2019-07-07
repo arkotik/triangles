@@ -303,12 +303,18 @@ function getPoint(top, left) {
   return p;
 }
 const wrapper = document.querySelector('.wrapper');
+const overlay = document.querySelector('.overlay');
 addPointsButt.onclick = () => {
-  wrapper.onmousedown = e => {
+  clearPoints();
+  overlay.classList.add('visible');
+  overlay.onmouseup = e => e.stopPropagation();
+  overlay.onclick = e => e.stopPropagation();
+  overlay.onmousedown = e => {
+    e.stopPropagation();
     if (window.points.length < 3) {
       const { offsetX, offsetY } = e;
       window.points.push([offsetX, offsetY]);
-      wrapper.appendChild(getPoint(offsetY, offsetX));
+      overlay.appendChild(getPoint(offsetY, offsetX));
     }
   };
 };
@@ -316,13 +322,7 @@ submitPointsButt.onclick = () => {
   const transformPoints = (points) => {
     return points.map(([x, y]) => [x, -y]);
   };
-  // window.points = [
-  //   [100, 100],
-  //   [100, 200],
-  //   [200, 200]
-  // ];
-
-  window.points.forEach(([x, y]) => wrapper.appendChild(getPoint(y, x)));
+  window.points.forEach(([x, y]) => overlay.appendChild(getPoint(y, x)));
   console.log(window.points);
   const t = new Triangle(...transformPoints(window.points));
   console.log(t);
@@ -342,10 +342,11 @@ submitPointsButt.onclick = () => {
   leftInput.value = left;
   rotateInput.value = isNaN(t.rotate) ? 0 : rot;
   update(figures.getActive());
-  // clearPoints();
+  clearPoints();
 };
 clearPointsButt.onclick = clearPoints;
 function clearPoints() {
   window.points = [];
-  wrapper.querySelectorAll('.point').forEach(el => el.remove());
+  overlay.querySelectorAll('.point').forEach(el => el.remove());
+  overlay.classList.remove('visible');
 }

@@ -34,6 +34,20 @@ header .top-panel{
     border: 1px solid #353535;
     min-height: 80vh;
 }
+.overlay{
+    position: absolute;
+    right: 15px;
+    top: 100px;
+    width: 0;
+    height: 0;
+    z-index: 0;
+}
+.overlay.visible{
+    width: calc(100% - 315px);
+    border: 1px solid #353535;
+    min-height: 80vh;
+    z-index: 9999;
+}
 .form-field{
     padding: 5px;
     margin: 5px 10px;

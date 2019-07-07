@@ -208,7 +208,7 @@ FiguresList.prototype.addFigure = function (key, className) {
   this._active = key;
   fig.ref.draggable = true;
   fig.ref.onmousedown = (e) => {
-    e.stopPropagation();
+    // e.stopPropagation();
     window.oX = e.offsetX;
     window.oY = e.offsetY;
   };
