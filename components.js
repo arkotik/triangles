@@ -51,9 +51,8 @@ function createFigureElement(key, className) {
 // const literalRX = /^[A-Za-z]+$/g;
 
 function setInlinePos(f, top, left) {
-  const { left: pLeft, top: pTop } = document.querySelector('.wrapper').getBoundingClientRect();
-  f.style.setProperty('left', `${left - pLeft - 1}px`);
-  f.style.setProperty('top', `${top - pTop - 1}px`);
+  f.style.setProperty('left', `${left - window.pLeft - 1}px`);
+  f.style.setProperty('top', `${top - window.pTop - 1}px`);
 }
 
 class StylesBlock {
@@ -268,23 +267,33 @@ FiguresList.prototype.addFigure = function (key, className) {
   const fig = new Figure(key, `${className} ${key}`);
   this._items[key] = fig;
   this._active = key;
-  fig.ref.draggable = true;
+  // fig.ref.draggable = true;
   fig.ref.onmousedown = (e) => {
-    // e.stopPropagation();
-    window.oX = e.offsetX;
-    window.oY = e.offsetY;
+    e.stopPropagation();
+    const { x, y, offsetX, offsetY } = e;
+    const { left, top } = document.querySelector('.wrapper').getBoundingClientRect();
+    window.pLeft = left;
+    window.pTop = top;
+    window.mov = fig.ref;
+    window.oX = offsetX;
+    window.oY = offsetY;
+    fig.ref.style.setProperty('transition', 'none');
+    setInlinePos(fig.ref, y - offsetY, x - offsetX);
   };
-  fig.ref.ondragstart = (e) => {
-    setInlinePos(fig.ref, e.y - window.oY, e.x - window.oX);
-  };
-  fig.ref.ondragend = (e) => {
-    const { left: pLeft, top: pTop } = document.querySelector('.wrapper').getBoundingClientRect();
+  // fig.ref.onmouseleave = e => {
+  //   e.stopPropagation();
+  //   window.mov = false;
+  //   fig.ref.removeAttribute('style');
+  // };
+  fig.ref.onmouseup = (e) => {
+    e.stopPropagation();
+    window.mov = false;
     const top = e.y - window.oY;
     const left = e.x - window.oX;
     const styles = fig.styles.getBlockByAlias('figure');
     const title = fig.styles.getBlockByAlias('title');
-    const newTop = top - pTop - 1;
-    const newLeft = left - pLeft - 1;
+    const newTop = top - window.pTop - 1;
+    const newLeft = left - window.pLeft - 1;
     styles.setProperties({
       top: `${newTop}px`,
       left: `${newLeft}px`,
@@ -295,7 +304,7 @@ FiguresList.prototype.addFigure = function (key, className) {
     });
     fig.updateRawProps({ top: newTop, left: newLeft });
     fig.ref.removeAttribute('style');
-    setTimeout(() => fig.styles.refresh())
+    setTimeout(() => fig.styles.refresh());
   };
   return fig;
 };
@@ -387,3 +396,4 @@ function getAlpha (w, h) {
   const sin = h / getDia(w, h);
   return (Math.asin(sin) / Math.PI) * 180;
 }
+

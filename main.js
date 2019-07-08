@@ -1,6 +1,11 @@
 window.oX = 0;
 window.oY = 0;
 window.CONTAINER = document.querySelector('.wrapper');
+window.CONTAINER.onmousemove = ({ x, y }) => {
+  if (window.mov) {
+    setInlinePos(window.mov, y - window.oY, x - window.oX);
+  }
+};
 const form = document.querySelector('#form-t');
 const resetButt = document.querySelector('#reset-butt');
 const addButt = document.querySelector('#add-tri-butt');
@@ -57,22 +62,32 @@ colorPickerInput.onchange = () => {
 };
 document.querySelector('html').onkeydown = e => {
   const { shiftKey, ctrlKey, code } = e;
-  if (!window.formFocused && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'Escape', 'Delete', 'NumpadAdd', 'KeyD'].includes(code)) {
+  if (!window.formFocused && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'Escape', 'Delete', 'NumpadAdd', 'KeyA', 'KeyW', 'KeyD', 'KeyS', 'KeyC', 'KeyQ', 'KeyE'].includes(code)) {
     e.preventDefault();
     const mul = (shiftKey ? 10 : 1) * ((ctrlKey && !shiftKey) ? 100 : 1);
     switch (code) {
-      case 'KeyD':
+      case 'KeyQ':
+        rotateInput.value -= 1;
+        break;
+      case 'KeyE':
+        rotateInput.value -= -1;
+        break;
+      case 'KeyC':
         dupButt.click();
         break;
+      case 'KeyW':
       case 'ArrowUp':
         topInput.value = (+topInput.value - mul);
         break;
+      case 'KeyS':
       case 'ArrowDown':
         topInput.value = (+topInput.value + mul);
         break;
+      case 'KeyA':
       case 'ArrowLeft':
         leftInput.value = (+leftInput.value - mul);
         break;
+      case 'KeyD':
       case 'ArrowRight':
         leftInput.value = (+leftInput.value + mul);
         break;
@@ -167,23 +182,23 @@ function addFig(clear = true) {
     enable('duplicate');
     updateFormAndMarker(key);
   });
-  figure.ref.addEventListener('dragend', (e) => {
-    const { width, height } = figures.getActive(key).getRawProps();
-    const { left: pLeft, top: pTop } = document.querySelector('.wrapper').getBoundingClientRect();
-    const top = e.y - window.oY - pTop - 1;
-    const left = e.x - window.oX - pLeft - 1;
-    topInput.value = top;
-    leftInput.value = left;
-    const markerProps = {
-      top: `${top - 5}px`,
-      left: `${left - 5}px`,
-      width: `${width + 10}px`,
-      height: `${height + 10}px`,
-      display: 'block'
-    };
-    activeMarkerStyles.getBlockByAlias('main').setProperties(markerProps);
-    activeMarkerStyles.refresh();
-  });
+  // figure.ref.addEventListener('mouseup', (e) => {
+  //   const { width, height } = figures.getActive(key).getRawProps();
+  //   const { left: pLeft, top: pTop } = document.querySelector('.wrapper').getBoundingClientRect();
+  //   const top = e.y - window.oY - pTop - 1;
+  //   const left = e.x - window.oX - pLeft - 1;
+  //   topInput.value = top;
+  //   leftInput.value = left;
+  //   const markerProps = {
+  //     top: `${top - 5}px`,
+  //     left: `${left - 5}px`,
+  //     width: `${width + 10}px`,
+  //     height: `${height + 10}px`,
+  //     display: 'block'
+  //   };
+  //   activeMarkerStyles.getBlockByAlias('main').setProperties(markerProps);
+  //   activeMarkerStyles.refresh();
+  // });
   enable('remove');
   enable('duplicate');
 }
