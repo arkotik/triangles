@@ -4,6 +4,33 @@ function getIterator() {
     return i++;
   };
 }
+function download(data, filename, type) {
+  const file = new Blob([data], {type: type});
+  if (window.navigator.msSaveOrOpenBlob) // IE10+
+    window.navigator.msSaveOrOpenBlob(file, filename);
+  else { // Others
+    const a = document.createElement("a"),
+      url = URL.createObjectURL(file);
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function() {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 0);
+  }
+}
+function readFile(url) {
+  // const xhr = new XMLHttpRequest();
+  // xhr.open('GET', url, true);
+  // let text = '';
+  // xhr.onreadystatechange = () => {
+  //   if (xhr.readyState === 4 && (xhr.status === 200 || xhr.status === 0)) {
+  //     text = xhr.responseText;
+  //   }
+  // };
+}
 
 function createStyleElement(key) {
   let el = document.createElement('style');
@@ -42,6 +69,9 @@ class StylesBlock {
   get alias() {
     return this._alias;
   }
+  get props() {
+    return this._properties;
+  }
 }
 StylesBlock.prototype.setProperty = function (name, value) {
   this._properties[name] = value;
@@ -67,6 +97,9 @@ StylesBlock.prototype.getStyleContent = function () {
   const stylesText = lines.join('\n');
   return `${this._selector}{\n` + stylesText + '\n}\n';
 };
+StylesBlock.prototype.toString = function () {
+  return '[StylesBlock]';
+};
 
 
 class StylesList {
@@ -81,6 +114,9 @@ class StylesList {
   }
   get key() {
     return this._key;
+  }
+  get blocks() {
+    return this._blocks;
   }
 }
 StylesList.prototype.addBlock = function (selector, properties = {}, alias = '') {
@@ -117,7 +153,9 @@ StylesList.prototype.getTextContent = function () {
 StylesList.prototype.refresh = function () {
   this._ref.innerHTML = this.getTextContent();
 };
-
+StylesList.prototype.toString = function () {
+  return '[StylesList]';
+};
 
 
 class Figure {
@@ -140,6 +178,12 @@ class Figure {
   }
   get styles() {
     return this._styles;
+  }
+  get raw() {
+    return this._rawProperties;
+  }
+  get className() {
+    return this._className;
   }
 }
 Figure.prototype.setStyles = function (blocksList) {
@@ -174,7 +218,9 @@ Figure.prototype.addTitle = function (title, props = {}) {
   this._styles.refresh();
   this._titleRef = document.querySelector(`.wrapper div.${className}`);
 };
-
+Figure.prototype.toString = function () {
+  return '[Figure]';
+};
 
 class FiguresList {
   constructor() {
@@ -187,6 +233,19 @@ class FiguresList {
   }
   get active() {
     return this._active;
+  }
+  get prevKey() {
+    const keys = Object.keys(this._items);
+    if (this._active === null) {
+      return keys[0] || null;
+    } else {
+      const curIdx = keys.indexOf(this._active);
+      if (curIdx === 0) {
+        return keys[keys.length - 1] || null;
+      } else {
+        return keys[curIdx - 1] || null;
+      }
+    }
   }
   get nextKey() {
     const keys = Object.keys(this._items);
@@ -202,6 +261,9 @@ class FiguresList {
     }
   }
 }
+FiguresList.prototype.toString = function () {
+  return '[FiguresList]';
+};
 FiguresList.prototype.addFigure = function (key, className) {
   const fig = new Figure(key, `${className} ${key}`);
   this._items[key] = fig;
@@ -256,8 +318,67 @@ FiguresList.prototype.getActive = function () {
 FiguresList.prototype.setStyles = function (key, styles) {
   this._items[key].setStyles(styles)
 };
-
-
+FiguresList.prototype.export = function (json = true) {
+  const exportList = [];
+  for (const item in this._items) {
+    const { key, raw, className, styles: stylesList } = this._items[item];
+    const styles = [];
+    for (const block of stylesList.blocks) {
+      const { selector, alias, props } = block;
+      styles.push({ selector, alias, props });
+    }
+    exportList.push({ key, raw, className, styles });
+  }
+  return json ? JSON.stringify(exportList, null, '\t') : exportList;
+};
+FiguresList.prototype.import = function (figures) {
+  if (typeof figures === 'string') {
+    try {
+      figures = JSON.parse(figures);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  for (const { key, raw, className, styles } of figures) {
+    const title = isNaN(+key) ? ((+key.match(/\d+/)[0] + 1) || key) : +key;
+    const figure = this.addFigure(key, className);
+    figure.setRawProps(raw);
+    const stylesList = [];
+    let titleProps = {};
+    for (const { alias, props, selector } of styles) {
+      if (alias === 'title') {
+        titleProps = props;
+      } else {
+        stylesList.push(new StylesBlock(selector, props, alias));
+      }
+    }
+    figure.setStyles(stylesList);
+    figure.addTitle(title, titleProps);
+    figure.ref.addEventListener('click', () => {
+      this.setActive(key);
+      enable('remove');
+      enable('duplicate');
+      updateFormAndMarker(key);
+    });
+    figure.ref.addEventListener('dragend', (e) => {
+      const { width, height } = this.getActive(key).getRawProps();
+      const { left: pLeft, top: pTop } = document.querySelector('.wrapper').getBoundingClientRect();
+      const top = e.y - window.oY - pTop - 1;
+      const left = e.x - window.oX - pLeft - 1;
+      topInput.value = top;
+      leftInput.value = left;
+      const markerProps = {
+        top: `${top - 5}px`,
+        left: `${left - 5}px`,
+        width: `${width + 10}px`,
+        height: `${height + 10}px`,
+        display: 'block'
+      };
+      activeMarkerStyles.getBlockByAlias('main').setProperties(markerProps);
+      activeMarkerStyles.refresh();
+    });
+  }
+};
 
 function getDia(a, b) {
   return Math.sqrt((a * a) + (b * b))

@@ -9,6 +9,9 @@ const dupButt = document.querySelector('#duplicate-butt');
 const addPointsButt = document.querySelector('#add-points');
 const submitPointsButt = document.querySelector('#submit-points');
 const clearPointsButt = document.querySelector('#clear-points');
+const exportButt = document.querySelector('#export-butt');
+const importButt = document.querySelector('#import-butt');
+const fileImport = document.querySelector('#file-import');
 
 const state = {
   add: {
@@ -54,10 +57,13 @@ colorPickerInput.onchange = () => {
 };
 document.querySelector('html').onkeydown = e => {
   const { shiftKey, ctrlKey, code } = e;
-  if (!window.formFocused && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'Escape', 'Delete', 'NumpadAdd'].includes(code)) {
+  if (!window.formFocused && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'Escape', 'Delete', 'NumpadAdd', 'KeyD'].includes(code)) {
     e.preventDefault();
     const mul = (shiftKey ? 10 : 1) * ((ctrlKey && !shiftKey) ? 100 : 1);
     switch (code) {
+      case 'KeyD':
+        dupButt.click();
+        break;
       case 'ArrowUp':
         topInput.value = (+topInput.value - mul);
         break;
@@ -71,7 +77,7 @@ document.querySelector('html').onkeydown = e => {
         leftInput.value = (+leftInput.value + mul);
         break;
       case 'Space':
-        const nextKey = figures.nextKey;
+        const nextKey = shiftKey ? figures.prevKey : figures.nextKey;
         figures.setActive(nextKey);
         updateFormAndMarker(nextKey);
         break;
@@ -326,11 +332,6 @@ submitPointsButt.onclick = () => {
   console.log(window.points);
   const t = new Triangle(...transformPoints(window.points));
   console.log(t);
-  // const props = {};
-  // const props = calcTriangleProps(...window.points);
-  // console.log(props);
-  // const { triangle, width, height, center, rotate, alpha } = props;
-  // console.log({ triangle, width, height, center, rotate, alpha });
   const [x, y] = t.center;
   const top = -y - (t.height / 2);
   const left = x - (t.width / 2);
@@ -350,3 +351,29 @@ function clearPoints() {
   overlay.querySelectorAll('.point').forEach(el => el.remove());
   overlay.classList.remove('visible');
 }
+
+exportButt.onclick = () => {
+  download(figures.export(), 'figures-list.json', 'json');
+};
+
+fileImport.onchange = () => {
+  const file = fileImport.files[0];
+  // readFile(fileImport.value).then(console.log).catch(console.error);
+  if (!file) {
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const list = JSON.parse(e.target.result);
+      figures.import(list);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  reader.readAsText(file);
+};
+
+importButt.onclick = () => {
+  fileImport.click();
+};
