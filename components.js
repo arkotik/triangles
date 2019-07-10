@@ -21,17 +21,6 @@ function download(data, filename, type) {
     }, 0);
   }
 }
-function readFile(url) {
-  // const xhr = new XMLHttpRequest();
-  // xhr.open('GET', url, true);
-  // let text = '';
-  // xhr.onreadystatechange = () => {
-  //   if (xhr.readyState === 4 && (xhr.status === 200 || xhr.status === 0)) {
-  //     text = xhr.responseText;
-  //   }
-  // };
-}
-
 function createStyleElement(key) {
   let el = document.createElement('style');
   el.type = 'text/css';
@@ -46,9 +35,6 @@ function createFigureElement(key, className) {
   window.CONTAINER.appendChild(el);
   return document.querySelector(`.wrapper div[data-figure="${key}"]`);
 }
-// const simpleRX = /^\d+(?=[A-Za-z]?)/g;
-// const skewRX = /(?<=(skew\(|deg,\s))(\d+(?=deg))/g;
-// const literalRX = /^[A-Za-z]+$/g;
 
 function setInlinePos(f, top, left) {
   f.style.setProperty('left', `${left - window.pLeft - 1}px`);
@@ -267,24 +253,34 @@ FiguresList.prototype.addFigure = function (key, className) {
   const fig = new Figure(key, `${className} ${key}`);
   this._items[key] = fig;
   this._active = key;
-  // fig.ref.draggable = true;
   fig.ref.onmousedown = (e) => {
     e.stopPropagation();
     const { x, y, offsetX, offsetY } = e;
+    const [oX, oY] = ((A, raw) => {
+      const { width, height, rotate } = raw;
+      if (!rotate) {
+        return A;
+      }
+      const O = [(width / 2), (height / 2)];
+      const radius = new Section(O, A).length;
+      const sin = Math.sin((rotate) / 180 * Math.PI);
+      const cos = Math.cos((rotate) / 180 * Math.PI);
+      const x = O[0] + radius * cos;
+      const y = O[1] + radius * sin;
+      return [x, y];
+    })([offsetX, offsetY], fig.raw);
+    console.log({ oX, oY, offsetX, offsetY });
     const { left, top } = document.querySelector('.wrapper').getBoundingClientRect();
     window.pLeft = left;
     window.pTop = top;
     window.mov = fig.ref;
-    window.oX = offsetX;
-    window.oY = offsetY;
+    // window.oX = offsetX;
+    // window.oY = offsetY;
+    window.oX = oX;
+    window.oY = oY;
     fig.ref.style.setProperty('transition', 'none');
     setInlinePos(fig.ref, y - offsetY, x - offsetX);
   };
-  // fig.ref.onmouseleave = e => {
-  //   e.stopPropagation();
-  //   window.mov = false;
-  //   fig.ref.removeAttribute('style');
-  // };
   fig.ref.onmouseup = (e) => {
     e.stopPropagation();
     window.mov = false;
@@ -330,6 +326,7 @@ FiguresList.prototype.setStyles = function (key, styles) {
 FiguresList.prototype.export = function (json = true) {
   const exportList = [];
   for (const item in this._items) {
+    // noinspection JSUnfilteredForInLoop
     const { key, raw, className, styles: stylesList } = this._items[item];
     const styles = [];
     for (const block of stylesList.blocks) {
