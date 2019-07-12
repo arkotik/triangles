@@ -35,7 +35,13 @@ function createFigureElement(key, className) {
   window.CONTAINER.appendChild(el);
   return document.querySelector(`.wrapper div[data-figure="${key}"]`);
 }
-
+function getDia(a, b) {
+  return Math.sqrt((a * a) + (b * b))
+}
+function getAlpha (w, h) {
+  const sin = h / getDia(w, h);
+  return (Math.asin(sin) / Math.PI) * 180;
+}
 function setInlinePos(f, top, left) {
   f.style.setProperty('left', `${left - window.pLeft - 1}px`);
   f.style.setProperty('top', `${top - window.pTop - 1}px`);
@@ -58,6 +64,9 @@ class StylesBlock {
     return this._properties;
   }
 }
+StylesBlock.prototype.toString = function () {
+  return '[StylesBlock]';
+};
 StylesBlock.prototype.setProperty = function (name, value) {
   this._properties[name] = value;
 };
@@ -82,9 +91,6 @@ StylesBlock.prototype.getStyleContent = function () {
   const stylesText = lines.join('\n');
   return `${this._selector}{\n` + stylesText + '\n}\n';
 };
-StylesBlock.prototype.toString = function () {
-  return '[StylesBlock]';
-};
 
 
 class StylesList {
@@ -104,6 +110,9 @@ class StylesList {
     return this._blocks;
   }
 }
+StylesList.prototype.toString = function () {
+  return '[StylesList]';
+};
 StylesList.prototype.addBlock = function (selector, properties = {}, alias = '') {
   const block = new StylesBlock(selector, properties, alias);
   this._selectors.add(selector);
@@ -138,9 +147,6 @@ StylesList.prototype.getTextContent = function () {
 StylesList.prototype.refresh = function () {
   this._ref.innerHTML = this.getTextContent();
 };
-StylesList.prototype.toString = function () {
-  return '[StylesList]';
-};
 
 
 class Figure {
@@ -171,6 +177,9 @@ class Figure {
     return this._className;
   }
 }
+Figure.prototype.toString = function () {
+  return '[Figure]';
+};
 Figure.prototype.setStyles = function (blocksList) {
   this._styles.setBlocks(blocksList);
   this.rerender();
@@ -202,9 +211,6 @@ Figure.prototype.addTitle = function (title, props = {}) {
   this._styles.addBlock(`.${className}`, props, 'title');
   this._styles.refresh();
   this._titleRef = document.querySelector(`.wrapper div.${className}`);
-};
-Figure.prototype.toString = function () {
-  return '[Figure]';
 };
 
 class FiguresList {
@@ -253,55 +259,6 @@ FiguresList.prototype.addFigure = function (key, className) {
   const fig = new Figure(key, `${className} ${key}`);
   this._items[key] = fig;
   this._active = key;
-  fig.ref.onmousedown = (e) => {
-    e.stopPropagation();
-    const { x, y, offsetX, offsetY } = e;
-    const [oX, oY] = ((A, raw) => {
-      const { width, height, rotate } = raw;
-      if (!rotate) {
-        return A;
-      }
-      const O = [(width / 2), (height / 2)];
-      const radius = new Section(O, A).length;
-      const sin = Math.sin((rotate) / 180 * Math.PI);
-      const cos = Math.cos((rotate) / 180 * Math.PI);
-      const x = O[0] + radius * cos;
-      const y = O[1] + radius * sin;
-      return [x, y];
-    })([offsetX, offsetY], fig.raw);
-    console.log({ oX, oY, offsetX, offsetY });
-    const { left, top } = document.querySelector('.wrapper').getBoundingClientRect();
-    window.pLeft = left;
-    window.pTop = top;
-    window.mov = fig.ref;
-    // window.oX = offsetX;
-    // window.oY = offsetY;
-    window.oX = oX;
-    window.oY = oY;
-    fig.ref.style.setProperty('transition', 'none');
-    setInlinePos(fig.ref, y - offsetY, x - offsetX);
-  };
-  fig.ref.onmouseup = (e) => {
-    e.stopPropagation();
-    window.mov = false;
-    const top = e.y - window.oY;
-    const left = e.x - window.oX;
-    const styles = fig.styles.getBlockByAlias('figure');
-    const title = fig.styles.getBlockByAlias('title');
-    const newTop = top - window.pTop - 1;
-    const newLeft = left - window.pLeft - 1;
-    styles.setProperties({
-      top: `${newTop}px`,
-      left: `${newLeft}px`,
-    });
-    title.setProperties({
-      top: `${newTop - 25}px`,
-      left: `${newLeft}px`,
-    });
-    fig.updateRawProps({ top: newTop, left: newLeft });
-    fig.ref.removeAttribute('style');
-    setTimeout(() => fig.styles.refresh());
-  };
   return fig;
 };
 FiguresList.prototype.removeFigure = function (key) {
@@ -386,11 +343,4 @@ FiguresList.prototype.import = function (figures) {
   }
 };
 
-function getDia(a, b) {
-  return Math.sqrt((a * a) + (b * b))
-}
-function getAlpha (w, h) {
-  const sin = h / getDia(w, h);
-  return (Math.asin(sin) / Math.PI) * 180;
-}
 

@@ -1,11 +1,62 @@
 window.oX = 0;
 window.oY = 0;
 window.CONTAINER = document.querySelector('.wrapper');
-window.CONTAINER.onmousemove = ({ x, y }) => {
-  if (window.mov) {
-    setInlinePos(window.mov, y - window.oY, x - window.oX);
+
+/** --------------------------DnD----------------------  */
+
+window.CONTAINER.onmousedown = (e) => {
+  e.stopPropagation();
+  const fig = figures.getActive();
+  if (!fig) {
+    return false;
+  }
+  const { x, y } = e;
+  const { left, top } = window.CONTAINER.getBoundingClientRect();
+  const offsetX = x - left;
+  const offsetY = y - top;
+  window.pLeft = left;
+  window.pTop = top;
+  const { top: figTop, left: figLeft, width: figWidth, height: figHeight } = fig.raw;
+  if (offsetX > figLeft && offsetX < (figLeft + figWidth) && offsetY > figTop && offsetY < (figTop + figHeight)) {
+    window.mov = fig;
+    window.oX = offsetX - figLeft;
+    window.oY = offsetY - figTop;
+    fig.ref.style.setProperty('transition', 'none');
   }
 };
+window.CONTAINER.onmousemove = ({ x, y }) => {
+  if (window.mov) {
+    setInlinePos(window.mov.ref, y - window.oY, x - window.oX);
+  }
+};
+window.CONTAINER.onmouseup = (e) => {
+  e.stopPropagation();
+  const top = e.y - window.oY;
+  const left = e.x - window.oX;
+  const styles = window.mov.styles.getBlockByAlias('figure');
+  const title = window.mov.styles.getBlockByAlias('title');
+  const newTop = top - window.pTop - 1;
+  const newLeft = left - window.pLeft - 1;
+  styles.setProperties({
+    top: `${newTop}px`,
+    left: `${newLeft}px`,
+  });
+  title.setProperties({
+    top: `${newTop - 25}px`,
+    left: `${newLeft}px`,
+  });
+  window.mov.updateRawProps({ top: newTop, left: newLeft });
+  window.mov.ref.removeAttribute('style');
+  setTimeout(() => {
+    window.mov.styles.refresh();
+    window.mov = false;
+  });
+};
+
+/** ------------------------------------------------  */
+
+
+
 const form = document.querySelector('#form-t');
 const resetButt = document.querySelector('#reset-butt');
 const addButt = document.querySelector('#add-tri-butt');
